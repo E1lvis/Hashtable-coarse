@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <thread>
 
 #include "Dictionary.cpp"
 #include "MyHashtable.cpp"
@@ -45,7 +46,14 @@ std::vector<std::vector<std::string>> tokenizeLyrics(const std::vector<std::stri
   return ret;
 }
 
+void doTheThing(std::reference_wrapper<std::string>& w){
+MyHashtable<std::string, int> ht;
+Dictionary<std::string, int>& dict = ht;
 
+ int count = dict.get(w);
+      ++count;
+      dict.set(w, count);
+}
 
 int main(int argc, char **argv)
 {
@@ -76,8 +84,25 @@ int main(int argc, char **argv)
 
 
   // write code here
+  std::vector<std::thread> mythreads;
 
+for (auto & filecontent: wordmap){
+    //std::thread mythread (printMinion, i);
+    for (auto & w : filecontent) {
+      std::thread mythread (doTheThing, std::ref(w));
+      mythreads.push_back(std::move(mythread));
+    }
+    
 
+  }
+
+ /*for (auto & filecontent: wordmap) {
+    for (auto & w : filecontent) {
+      int count = dict.get(w);
+      ++count;
+      dict.set(w, count);
+    }
+ }*/
 
 
 
