@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 #include "Dictionary.cpp"
 #include "MyHashtable.cpp"
@@ -46,13 +47,14 @@ std::vector<std::vector<std::string>> tokenizeLyrics(const std::vector<std::stri
   return ret;
 }
 
-void doTheThing(std::string& w){
+void doTheThing(std::string& w, std::mutex& mut){
 MyHashtable<std::string, int> ht;
 Dictionary<std::string, int>& dict = ht;
-
+  mut.lock ();
  int count = dict.get(w);
       ++count;
       dict.set(w, count);
+      mut.unlock ();
 }
 
 int main(int argc, char **argv)
@@ -85,14 +87,21 @@ int main(int argc, char **argv)
 auto start =std::chrono::steady_clock::now();
   // write code here
   std::vector<std::thread> mythreads;
-
+std::vector<std::thread> mythreads;
+  std::mutex mu;
 for (auto & filecontent: wordmap){
     //std::thread mythread (printMinion, i);
     for (auto & w : filecontent) {
-      std::thread mythread (doTheThing, std::ref(w));
+      std::thread mythread (doTheThing, std::ref(w), std::ref(mu));
       mythreads.push_back(std::move(mythread));
     }
-    
+     for (auto & t : mythreads){
+      if (t.joinable())
+       t.join();
+      else
+       std::cout<<"t is not joinable\n";
+
+} 
 
   }
 
