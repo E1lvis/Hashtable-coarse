@@ -5,12 +5,15 @@
 #include <functional>
 #include <iostream>
 #include <vector>
+#include <mutex>
 
 template<class K, class V>
 struct Node {
   K key;
   V value;
   Node* next;
+  
+  std::mutex mut;
 
   Node(const K& key, const V& value)
     : key(key), value(value), next(nullptr)
@@ -54,7 +57,7 @@ protected:
 	      else cur = nullptr;
       }
     }
-
+    
     hashtable_iter (MyHashtable& myhash, int buck, Node<K,V>*ptr)
       : mt(myhash), bucket(buck), cur(ptr) {
       if (cur == nullptr) advance();
@@ -78,7 +81,7 @@ protected:
     }
   };
 
-  void resize(int capacity) {
+  /*void resize(int capacity) {
     //Note that this function works by creating a brand new hashtable
     //and stealing its data at the end. This causes more memory
     //allocation than are really necessary as we could reuse all the
@@ -97,7 +100,7 @@ protected:
     std::swap(this->capacity, temp_table.capacity);
     std::swap(this->table, temp_table.table); 
   }
-
+*/
 public:
   /**
    * Returns the node at key
@@ -105,6 +108,7 @@ public:
    * @return node of type Node at key
    */
   virtual V get(const K& key) const {
+      mut.lock();
     std::size_t index = std::hash<K>{}(key) % this->capacity;
     index = index < 0 ? index + this->capacity : index;
     const Node<K,V>* node = this->table[index];
@@ -114,6 +118,7 @@ public:
 	      return node->value;
       node = node->next;
     }
+    mut.unlock();
     return V();
   }
 
@@ -123,6 +128,7 @@ public:
    * @param value new value of node
    */
   virtual void set(const K& key, const V& value) {
+      mut.lock();
     std::size_t index = std::hash<K>{}(key) % this->capacity;
     index = index < 0 ? index + this->capacity : index;
     Node<K,V>* node = this->table[index];
@@ -130,6 +136,7 @@ public:
     while (node != nullptr) {
       if (node->key == key) {
 	      node->value = value;
+          mut.unlock();
 	      return;
       }
       node = node->next;
@@ -143,6 +150,7 @@ public:
     if (((double)this->count)/this->capacity > this->loadFactor) {
       this->resize(this->capacity * 2);
     }
+    mut.unlock();
   }
 
   /**
