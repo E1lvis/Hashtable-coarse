@@ -53,7 +53,7 @@ Dictionary<std::string, int>& dict = ht;
   mut.lock ();
  int count = dict.get(w);
       ++count;
-      dict.set(w, count);
+      dict.update(w, count);
       mut.unlock ();
 }
 

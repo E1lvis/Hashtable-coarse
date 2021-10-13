@@ -13,7 +13,7 @@ struct Node {
   V value;
   Node* next;
   
-  std::mutex mut;
+  //std::mutex mut;
 
   Node(const K& key, const V& value)
     : key(key), value(value), next(nullptr)
@@ -32,6 +32,9 @@ protected:
   int count;
   double loadFactor;
   std::vector<Node<K,V>*> table;
+  //std::mutex mut;
+  std::vector<std::mutex> mut;
+
 
   struct hashtable_iter : public dict_iter {
     MyHashtable& mt;
@@ -107,6 +110,33 @@ public:
    * @param key key of node to get
    * @return node of type Node at key
    */
+
+  virtual V update(const K& key, const V& value){
+    std::size_t index = std::hash<K>{}(key) % this->capacity;
+    index = index < 0 ? index + this->capacity : index;
+    const Node<K,V>* node = this->table[index];
+
+    mut[index].lock();
+
+    while (node != nullptr) {
+      if (node->key == key){
+        node->value = value;
+        
+        mut[index].unlock();
+	      return node->value;
+      }
+      node = node->next;
+    }
+
+    node = new Node<K,V>(key, value);
+    node->next = this->table[index];
+    this->table[index] = node;
+    this->count++;
+
+    mut[index].unlock();
+
+    return V();
+  }
   virtual V get(const K& key) const {
       mut.lock();
     std::size_t index = std::hash<K>{}(key) % this->capacity;
@@ -147,9 +177,9 @@ public:
     node->next = this->table[index];
     this->table[index] = node;
     this->count++;
-    if (((double)this->count)/this->capacity > this->loadFactor) {
+    /*if (((double)this->count)/this->capacity > this->loadFactor) {
       this->resize(this->capacity * 2);
-    }
+    }*/
     mut.unlock();
   }
 

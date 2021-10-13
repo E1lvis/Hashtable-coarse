@@ -44,11 +44,16 @@ public:
     }
   };
   
+  
+
   /**
    * Returns the value stored for key
    * @param key key of node to get
    * @return value stored for key
    */
+
+  virtual V update (const K& key, const V& value) const = 0;
+
   virtual V get (const K& key) const = 0;
 
   /**
