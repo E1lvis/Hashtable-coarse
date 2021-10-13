@@ -114,7 +114,7 @@ public:
    V update(const K& key, const V& value){
     std::size_t index = std::hash<K>{}(key) % this->capacity;
     index = index < 0 ? index + this->capacity : index;
-    const Node<K,V>* node = this->table[index];
+    Node<K,V>* node = this->table[index];
 
     //mut[index].lock();
 
@@ -138,7 +138,7 @@ public:
     return V();
   }
   virtual V get(const K& key) const {
-      mut.lock();
+      //mut.lock();
     std::size_t index = std::hash<K>{}(key) % this->capacity;
     index = index < 0 ? index + this->capacity : index;
     const Node<K,V>* node = this->table[index];
@@ -148,7 +148,7 @@ public:
 	      return node->value;
       node = node->next;
     }
-    mut.unlock();
+    //mut.unlock();
     return V();
   }
 
@@ -158,7 +158,7 @@ public:
    * @param value new value of node
    */
   virtual void set(const K& key, const V& value) {
-      mut.lock();
+      //mut.lock();
     std::size_t index = std::hash<K>{}(key) % this->capacity;
     index = index < 0 ? index + this->capacity : index;
     Node<K,V>* node = this->table[index];
@@ -166,7 +166,7 @@ public:
     while (node != nullptr) {
       if (node->key == key) {
 	      node->value = value;
-          mut.unlock();
+         // mut.unlock();
 	      return;
       }
       node = node->next;
@@ -180,7 +180,7 @@ public:
     /*if (((double)this->count)/this->capacity > this->loadFactor) {
       this->resize(this->capacity * 2);
     }*/
-    mut.unlock();
+    //mut.unlock();
   }
 
   /**

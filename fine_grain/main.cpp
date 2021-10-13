@@ -52,9 +52,9 @@ MyHashtable<std::string, int> ht;
 Dictionary<std::string, int>& dict = ht;
   mut.lock ();
   int count = 0;
-  count = dict.update(w, count);
+  count = ht.update(w, count);
       ++count;
-      dict.update(w, count);
+      ht.update(w, count);
       mut.unlock ();
 }
 
