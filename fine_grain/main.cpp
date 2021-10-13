@@ -51,7 +51,8 @@ void doTheThing(std::string& w, std::mutex& mut){
 MyHashtable<std::string, int> ht;
 Dictionary<std::string, int>& dict = ht;
   mut.lock ();
- int count = dict.get(w);
+  int count = 0;
+  count = dict.update(w, count);
       ++count;
       dict.update(w, count);
       mut.unlock ();

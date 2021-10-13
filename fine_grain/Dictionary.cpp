@@ -52,7 +52,7 @@ public:
    * @return value stored for key
    */
 
-  virtual V update (const K& key, const V& value) const = 0;
+ // V update (const K& key, const V& value) = 0;
 
   virtual V get (const K& key) const = 0;
 

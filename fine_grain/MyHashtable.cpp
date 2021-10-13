@@ -13,7 +13,7 @@ struct Node {
   V value;
   Node* next;
   
-  //std::mutex mut;
+  std::mutex mut;
 
   Node(const K& key, const V& value)
     : key(key), value(value), next(nullptr)
@@ -111,18 +111,18 @@ public:
    * @return node of type Node at key
    */
 
-  virtual V update(const K& key, const V& value){
+   V update(const K& key, const V& value){
     std::size_t index = std::hash<K>{}(key) % this->capacity;
     index = index < 0 ? index + this->capacity : index;
     const Node<K,V>* node = this->table[index];
 
-    mut[index].lock();
+    //mut[index].lock();
 
     while (node != nullptr) {
       if (node->key == key){
         node->value = value;
         
-        mut[index].unlock();
+        //mut[index].unlock();
 	      return node->value;
       }
       node = node->next;
@@ -133,7 +133,7 @@ public:
     this->table[index] = node;
     this->count++;
 
-    mut[index].unlock();
+    //mut[index].unlock();
 
     return V();
   }
