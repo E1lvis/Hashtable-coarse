@@ -50,12 +50,12 @@ std::vector<std::vector<std::string>> tokenizeLyrics(const std::vector<std::stri
 void doTheThing(std::string& w, std::mutex& mut){
 MyHashtable<std::string, int> ht;
 Dictionary<std::string, int>& dict = ht;
-  mut.lock ();
+      //mut.lock();
   int count = 0;
   count = ht.update(w, count);
       ++count;
       ht.update(w, count);
-      mut.unlock ();
+      //mut.unlock();
 }
 
 int main(int argc, char **argv)

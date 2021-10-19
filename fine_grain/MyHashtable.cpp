@@ -32,8 +32,8 @@ protected:
   int count;
   double loadFactor;
   std::vector<Node<K,V>*> table;
-  //std::mutex mut;
-  std::vector<std::mutex> mut;
+  std::mutex mut[256];
+  //std::vector<std::mutex> mut;
 
 
   struct hashtable_iter : public dict_iter {
@@ -116,13 +116,13 @@ public:
     index = index < 0 ? index + this->capacity : index;
     Node<K,V>* node = this->table[index];
 
-    //mut[index].lock();
+    mut[index].lock();
 
     while (node != nullptr) {
       if (node->key == key){
         node->value = value;
         
-        //mut[index].unlock();
+        mut[index].unlock();
 	      return node->value;
       }
       node = node->next;
@@ -133,7 +133,7 @@ public:
     this->table[index] = node;
     this->count++;
 
-    //mut[index].unlock();
+    mut[index].unlock();
 
     return V();
   }
