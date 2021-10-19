@@ -47,17 +47,18 @@ std::vector<std::vector<std::string>> tokenizeLyrics(const std::vector<std::stri
   return ret;
 }
 
-void doTheThing(std::string& filecontent, std::mutex& mut){
+void doTheThing(std::vector<std::vector<std::string>>& filecontent, std::mutex& mut){
 MyHashtable<std::string, int> ht;
 Dictionary<std::string, int>& dict = ht;
   mut.lock ();
   int count = 0;
   for (auto & w : filecontent) {
-      count = ht.update(w, count);
+      count = dict.get(w);
       ++count;
-      ht.update(w, count);
-      mut.unlock ();
+      dict.set(w, count);
+      
 }
+ mut.unlock();
     }
   
 
@@ -93,9 +94,9 @@ auto start =std::chrono::steady_clock::now();
   std::vector<std::thread> mythreads;
 
   std::mutex mu;
-for (auto & filecontent: wordmap){
-  std::thread mythread (doTheThing, std::ref(wordmap), std::ref(mu));
-      mythreads.push_back(std::move(mythread));
+for (std::vector<std::vector<std::string>>& filecontent: wordmap){
+  std::thread mythread (doTheThing, std::ref(filecontent), std::ref(mu));
+  mythreads.push_back(std::move(mythread));
   //move thread and func tion here move inner loop to function move join outside loop
     
      
