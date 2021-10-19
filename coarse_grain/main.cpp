@@ -47,15 +47,19 @@ std::vector<std::vector<std::string>> tokenizeLyrics(const std::vector<std::stri
   return ret;
 }
 
-void doTheThing(std::string& w, std::mutex& mut){
+void doTheThing(std::string& filecontent, std::mutex& mut){
 MyHashtable<std::string, int> ht;
 Dictionary<std::string, int>& dict = ht;
   mut.lock ();
- int count = dict.get(w);
+  int count = 0;
+  for (auto & w : filecontent) {
+      count = ht.update(w, count);
       ++count;
-      dict.set(w, count);
+      ht.update(w, count);
       mut.unlock ();
 }
+    }
+  
 
 int main(int argc, char **argv)
 {
@@ -90,20 +94,21 @@ auto start =std::chrono::steady_clock::now();
 
   std::mutex mu;
 for (auto & filecontent: wordmap){
-    for (auto & w : filecontent) {
-      std::thread mythread (doTheThing, std::ref(w), std::ref(mu));
+  std::thread mythread (doTheThing, std::ref(wordmap), std::ref(mu));
       mythreads.push_back(std::move(mythread));
-    }
-     for (auto & t : mythreads){
+  //move thread and func tion here move inner loop to function move join outside loop
+    
+     
+
+  }
+
+for (auto & t : mythreads){
       if (t.joinable())
        t.join();
       else
        std::cout<<"t is not joinable\n";
 
 } 
-
-  }
-
  auto stop = std::chrono::steady_clock::now();
   std::chrono::duration<double> time_elapsed = stop-start;
 
