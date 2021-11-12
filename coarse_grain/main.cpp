@@ -46,12 +46,12 @@ std::vector<std::vector<std::string>> tokenizeLyrics(const std::vector<std::stri
   }
   return ret;
 }
-
-void doTheThing(std::vector<std::vector<std::string>>& filecontent, std::mutex& mut){
+//change to vecotr fo stings
+void doTheThing(std::vector<std::string>& filecontent, std::mutex& mut, int count){
 MyHashtable<std::string, int> ht;
 Dictionary<std::string, int>& dict = ht;
   mut.lock ();
-  int count = 0;
+  //int count = 0;
   for (auto & w : filecontent) {
       count = dict.get(w);
       ++count;
@@ -92,13 +92,13 @@ int main(int argc, char **argv)
 auto start =std::chrono::steady_clock::now();
   // write code here
   std::vector<std::thread> mythreads;
-
+  int count = 0;
   std::mutex mu;
-for (std::vector<std::vector<std::string>>& filecontent: wordmap){
-  std::thread mythread (doTheThing, std::ref(filecontent), std::ref(mu));
+for (auto& filecontent: wordmap){
+  std::thread mythread (doTheThing, std::ref(filecontent), std::ref(mu), count);
   mythreads.push_back(std::move(mythread));
   //move thread and func tion here move inner loop to function move join outside loop
-    
+   // 
      
 
   }
@@ -138,6 +138,6 @@ for (auto & t : mythreads){
 std::cerr << time_elapsed.count()<<"\n";
   // Do not touch this, need for test cases
   std::cout << ht.get(testWord) << std::endl;
-
-  return 0;
+	std::cout<<count;
+  return 0; 
 }
